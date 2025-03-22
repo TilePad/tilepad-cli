@@ -1,0 +1,16 @@
+[package]
+name = "tilepad-cli"
+description = "CLI for developing tilepad plugins"
+version = "0.0.0"
+edition = "2024"
+readme = "README.md"
+license = "MIT"
+authors = ["Jacobtread <jacobtread@gmail.com>"]
+repository = "https://github.com/tilepad/tilepad-cli"
+
+[dependencies]
+clap = { version = "4.5.32", features = ["derive"] }
+
+[[bin]]
+name = "tilepad"
+path = "src/main.rs"
