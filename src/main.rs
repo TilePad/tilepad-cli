@@ -5,9 +5,9 @@ use std::{
 };
 
 use clap::{Parser, Subcommand};
-use eyre::{Context, ContextCompat, eyre};
+use eyre::Context;
 use manifest::Manifest;
-use walkdir::{DirEntry, WalkDir};
+use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
 mod manifest;
@@ -21,6 +21,21 @@ struct Args {
 
 #[derive(Subcommand)]
 pub enum Commands {
+    /// Scaffold out a new tilepad plugin
+    Create,
+
+    /// Restart a specific plugin
+    Restart {
+        /// ID of the plugin to restart
+        plugin_id: String,
+    },
+
+    /// Stop a specific plugin
+    Stop {
+        /// ID of the plugin to stop
+        plugin_id: String,
+    },
+
     /// Bundles the .tilepadPlugin directory into a .tilepadPlugin
     /// archive ready to be installed by Tilepad
     Bundle {
@@ -55,6 +70,7 @@ fn main() -> eyre::Result<()> {
 
     match command {
         Commands::Bundle { path, output, name } => bundle(path, output, name),
+        _ => todo!("not implemented"),
     }
 }
 
