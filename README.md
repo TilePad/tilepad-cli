@@ -8,4 +8,4 @@
 
 # Tilepad CLI
 
-> Command line tool for working with [Tilepad](https://github.com/tilepad/tilepad-desktop) plugins
+> Command line tool for working with [Tilepad](https://github.com/tilepad/tilepad-desktop) plugins, packing plugins, linking, ...etc
