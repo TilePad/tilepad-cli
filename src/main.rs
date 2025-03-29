@@ -8,7 +8,7 @@ use std::{
 use clap::{Parser, Subcommand};
 use dirs::data_dir;
 use eyre::{Context, OptionExt};
-use tilepad_manifest::plugin::Manifest as PluginManifest;
+use tilepad_manifest::{icons::Manifest as IconsManifest, plugin::Manifest as PluginManifest};
 use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
@@ -65,8 +65,7 @@ pub enum Commands {
     },
 
     BundleIconPack {
-        /// Optional path to the directory containing the .tilepadIcons directory
-        /// if not specified the current directory will be used
+        /// Optional path to the directory containing the iconpack manifest
         #[arg(short, long)]
         path: Option<PathBuf>,
 
@@ -96,6 +95,7 @@ fn main() -> eyre::Result<()> {
 
     match command {
         Commands::Bundle { path, output, name } => bundle(path, output, name),
+        Commands::BundleIconPack { path, output, name } => bundle_icon_pack(path, output, name),
         Commands::Link {} => link(),
         Commands::Unlink {} => unlink(),
         _ => todo!("not implemented"),
@@ -228,6 +228,38 @@ fn bundle(
     let file = File::create(output_plugin_file)?;
 
     zip(&plugin_path, file)?;
+
+    Ok(())
+}
+
+fn bundle_icon_pack(
+    path: Option<PathBuf>,
+    output: Option<PathBuf>,
+    output_name: Option<String>,
+) -> eyre::Result<()> {
+    let path = path.unwrap_or_else(|| PathBuf::from("."));
+    let output_path = output.unwrap_or_else(|| PathBuf::from("."));
+
+    eyre::ensure!(path.exists(), ".tilepadPlugin directory does not exist");
+    eyre::ensure!(path.is_dir(), "target is not a directory");
+
+    let manifest_path = path.join("manifest.toml");
+    eyre::ensure!(
+        manifest_path.exists(),
+        "manifest.toml manifest file does not exist"
+    );
+
+    let manifest =
+        std::fs::read_to_string(manifest_path).wrap_err("failed to read manifest file")?;
+    let manifest = IconsManifest::parse(&manifest).wrap_err("failed to parse manifest")?;
+
+    let output_file_name = output_name.unwrap_or_else(|| manifest.icons.id.0.clone());
+
+    let output_plugin_file = output_path.join(format!("{output_file_name}.tilepadIcons"));
+
+    let file = File::create(output_plugin_file)?;
+
+    zip(&path, file)?;
 
     Ok(())
 }
