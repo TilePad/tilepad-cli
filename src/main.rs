@@ -8,11 +8,9 @@ use std::{
 use clap::{Parser, Subcommand};
 use dirs::data_dir;
 use eyre::{Context, OptionExt};
-use manifest::Manifest;
+use tilepad_manifest::plugin::Manifest as PluginManifest;
 use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
-
-mod manifest;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -65,6 +63,23 @@ pub enum Commands {
         #[arg(short, long)]
         output: Option<PathBuf>,
     },
+
+    BundleIconPack {
+        /// Optional path to the directory containing the .tilepadIcons directory
+        /// if not specified the current directory will be used
+        #[arg(short, long)]
+        path: Option<PathBuf>,
+
+        /// Optional name for the bundle defaults to the icon pack ID from the
+        /// manifest file
+        #[arg(short, long)]
+        name: Option<String>,
+
+        /// Optional output directory to save the .tilepadIcons archive
+        /// defaults to the current directory
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
 }
 
 fn main() -> eyre::Result<()> {
@@ -107,7 +122,7 @@ fn link() -> eyre::Result<()> {
 
     let manifest =
         std::fs::read_to_string(manifest_path).wrap_err("failed to read manifest file")?;
-    let manifest = Manifest::parse(&manifest).wrap_err("failed to parse manifest")?;
+    let manifest = PluginManifest::parse(&manifest).wrap_err("failed to parse manifest")?;
 
     let data_path = data_dir().ok_or_eyre("failed to get app data directory")?;
 
@@ -156,7 +171,7 @@ fn unlink() -> eyre::Result<()> {
 
     let manifest =
         std::fs::read_to_string(manifest_path).wrap_err("failed to read manifest file")?;
-    let manifest = Manifest::parse(&manifest).wrap_err("failed to parse manifest")?;
+    let manifest = PluginManifest::parse(&manifest).wrap_err("failed to parse manifest")?;
 
     let data_path = data_dir().ok_or_eyre("failed to get app data directory")?;
 
@@ -204,7 +219,7 @@ fn bundle(
 
     let manifest =
         std::fs::read_to_string(manifest_path).wrap_err("failed to read manifest file")?;
-    let manifest = Manifest::parse(&manifest).wrap_err("failed to parse manifest")?;
+    let manifest = PluginManifest::parse(&manifest).wrap_err("failed to parse manifest")?;
 
     let output_file_name = output_name.unwrap_or_else(|| manifest.plugin.id.0.clone());
 

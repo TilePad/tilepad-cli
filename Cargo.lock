@@ -1364,14 +1364,23 @@ dependencies = [
  "color-eyre",
  "dirs",
  "eyre",
+ "tilepad-manifest",
+ "walkdir",
+ "zip",
+]
+
+[[package]]
+name = "tilepad-manifest"
+version = "0.0.0"
+dependencies = [
+ "dirs",
  "garde",
  "node-semver",
  "serde",
  "serde_json",
  "strum 0.27.1",
+ "thiserror 2.0.12",
  "toml",
- "walkdir",
- "zip",
 ]
 
 [[package]]
