@@ -137,7 +137,7 @@ fn link() -> eyre::Result<()> {
     let plugin_out_path = absolute(plugin_out_path).wrap_err("failed to make absolute path")?;
 
     if plugin_out_path.exists() {
-        remove_dir_all(&plugin_out_path).wrap_err("failed to create missing plugin directory")?;
+        remove_dir_all(&plugin_out_path).wrap_err("failed to remove plugin directory")?;
     }
 
     println!(
