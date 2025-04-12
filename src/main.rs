@@ -1,13 +1,13 @@
 use std::{
     fs::{File, remove_dir_all},
     io::{Read, Seek, Write},
-    os::windows::fs::symlink_dir,
     path::{Path, PathBuf, absolute},
 };
 
 use clap::{Parser, Subcommand};
 use dirs::data_dir;
 use eyre::{Context, OptionExt};
+use symlink::{remove_symlink_dir, symlink_dir};
 use tilepad_manifest::{icons::Manifest as IconsManifest, plugin::Manifest as PluginManifest};
 use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
@@ -185,7 +185,8 @@ fn unlink() -> eyre::Result<()> {
     let plugin_out_path: PathBuf = plugins_path.join(&manifest.plugin.id.0);
 
     if plugin_out_path.is_symlink() {
-        remove_dir_all(&plugin_out_path).wrap_err("failed to create missing plugin directory")?;
+        remove_symlink_dir(&plugin_out_path)
+            .wrap_err("failed to create missing plugin directory")?;
         println!("removed link");
     } else {
         println!("link not found")
