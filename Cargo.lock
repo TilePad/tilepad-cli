@@ -1379,7 +1379,9 @@ dependencies = [
 
 [[package]]
 name = "tilepad-manifest"
-version = "0.1.0"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d3551138deaff3fd0b5e22817ce826d9bac996bc107a0bbc17374818e316532"
 dependencies = [
  "dirs",
  "garde",
