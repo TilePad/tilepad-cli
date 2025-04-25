@@ -1,16 +1,11 @@
-use std::{
-    fs::{File, remove_dir_all},
-    io::{Read, Seek, Write},
-    path::{Path, PathBuf, absolute},
-};
-
 use clap::{Parser, Subcommand};
-use dirs::data_dir;
-use eyre::{Context, OptionExt};
-use symlink::{remove_symlink_dir, symlink_dir};
-use tilepad_manifest::{icons::Manifest as IconsManifest, plugin::Manifest as PluginManifest};
-use walkdir::WalkDir;
-use zip::write::SimpleFileOptions;
+use std::path::PathBuf;
+
+mod bundle;
+mod bundle_icon_pack;
+mod link;
+mod unlink;
+mod zip;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -94,207 +89,12 @@ fn main() -> eyre::Result<()> {
     };
 
     match command {
-        Commands::Bundle { path, output, name } => bundle(path, output, name),
-        Commands::BundleIconPack { path, output, name } => bundle_icon_pack(path, output, name),
-        Commands::Link {} => link(),
-        Commands::Unlink {} => unlink(),
+        Commands::Bundle { path, output, name } => bundle::bundle(path, output, name),
+        Commands::BundleIconPack { path, output, name } => {
+            bundle_icon_pack::bundle_icon_pack(path, output, name)
+        }
+        Commands::Link {} => link::link(),
+        Commands::Unlink {} => unlink::unlink(),
         _ => todo!("not implemented"),
     }
-}
-
-fn link() -> eyre::Result<()> {
-    let path = PathBuf::from(".");
-    let plugin_path = path.join(".tilepadPlugin");
-    let plugin_path = absolute(plugin_path).wrap_err("failed to make absolute path")?;
-
-    eyre::ensure!(
-        plugin_path.exists(),
-        ".tilepadPlugin directory does not exist"
-    );
-
-    eyre::ensure!(plugin_path.is_dir(), ".tilepadPlugin is not a directory");
-
-    let manifest_path = plugin_path.join("manifest.json");
-    eyre::ensure!(
-        manifest_path.exists(),
-        ".tilepadPlugin/manifest.json manifest file does not exist"
-    );
-
-    let manifest =
-        std::fs::read_to_string(manifest_path).wrap_err("failed to read manifest file")?;
-    let manifest = PluginManifest::parse(&manifest).wrap_err("failed to parse manifest")?;
-
-    let data_path = data_dir().ok_or_eyre("failed to get app data directory")?;
-
-    let tilepad_path = data_path.join("com.jacobtread.tilepad.desktop");
-    eyre::ensure!(
-        tilepad_path.exists(),
-        "tilepad directory does not exist, do you have it installed?"
-    );
-
-    let plugins_path = tilepad_path.join("plugins");
-    let plugin_out_path = plugins_path.join(&manifest.plugin.id.0);
-    let plugin_out_path = absolute(plugin_out_path).wrap_err("failed to make absolute path")?;
-
-    if plugin_out_path.exists() {
-        remove_dir_all(&plugin_out_path).wrap_err("failed to remove plugin directory")?;
-    }
-
-    println!(
-        "linking {} to {}",
-        plugin_out_path.display(),
-        plugin_path.display()
-    );
-
-    symlink_dir(plugin_path, plugin_out_path).wrap_err("failed to create link")?;
-
-    println!("created link");
-
-    Ok(())
-}
-
-fn unlink() -> eyre::Result<()> {
-    let path = PathBuf::from(".");
-    let plugin_path = path.join(".tilepadPlugin");
-    eyre::ensure!(
-        plugin_path.exists(),
-        ".tilepadPlugin directory does not exist"
-    );
-
-    eyre::ensure!(plugin_path.is_dir(), ".tilepadPlugin is not a directory");
-
-    let manifest_path = plugin_path.join("manifest.json");
-    eyre::ensure!(
-        manifest_path.exists(),
-        ".tilepadPlugin/manifest.json manifest file does not exist"
-    );
-
-    let manifest =
-        std::fs::read_to_string(manifest_path).wrap_err("failed to read manifest file")?;
-    let manifest = PluginManifest::parse(&manifest).wrap_err("failed to parse manifest")?;
-
-    let data_path = data_dir().ok_or_eyre("failed to get app data directory")?;
-
-    let tilepad_path = data_path.join("com.jacobtread.tilepad.desktop");
-    eyre::ensure!(
-        tilepad_path.exists(),
-        "tilepad directory does not exist, do you have it installed?"
-    );
-
-    let plugins_path = tilepad_path.join("plugins");
-    let plugin_out_path: PathBuf = plugins_path.join(&manifest.plugin.id.0);
-
-    if plugin_out_path.is_symlink() {
-        remove_symlink_dir(&plugin_out_path)
-            .wrap_err("failed to create missing plugin directory")?;
-        println!("removed link");
-    } else {
-        println!("link not found")
-    }
-
-    Ok(())
-}
-
-fn bundle(
-    path: Option<PathBuf>,
-    output: Option<PathBuf>,
-    output_name: Option<String>,
-) -> eyre::Result<()> {
-    let path = path.unwrap_or_else(|| PathBuf::from("."));
-    let output_path = output.unwrap_or_else(|| PathBuf::from("."));
-
-    let plugin_path = path.join(".tilepadPlugin");
-
-    eyre::ensure!(
-        plugin_path.exists(),
-        ".tilepadPlugin directory does not exist"
-    );
-
-    eyre::ensure!(plugin_path.is_dir(), ".tilepadPlugin is not a directory");
-
-    let manifest_path = plugin_path.join("manifest.json");
-    eyre::ensure!(
-        manifest_path.exists(),
-        ".tilepadPlugin/manifest.json manifest file does not exist"
-    );
-
-    let manifest =
-        std::fs::read_to_string(manifest_path).wrap_err("failed to read manifest file")?;
-    let manifest = PluginManifest::parse(&manifest).wrap_err("failed to parse manifest")?;
-
-    let output_file_name = output_name.unwrap_or_else(|| manifest.plugin.id.0.clone());
-
-    let output_plugin_file = output_path.join(format!("{output_file_name}.tilepadPlugin"));
-
-    let file = File::create(output_plugin_file)?;
-
-    zip(&plugin_path, file)?;
-
-    Ok(())
-}
-
-fn bundle_icon_pack(
-    path: Option<PathBuf>,
-    output: Option<PathBuf>,
-    output_name: Option<String>,
-) -> eyre::Result<()> {
-    let path = path.unwrap_or_else(|| PathBuf::from("."));
-    let output_path = output.unwrap_or_else(|| PathBuf::from("."));
-
-    eyre::ensure!(path.exists(), ".tilepadPlugin directory does not exist");
-    eyre::ensure!(path.is_dir(), "target is not a directory");
-
-    let manifest_path = path.join("manifest.json");
-    eyre::ensure!(
-        manifest_path.exists(),
-        "manifest.json manifest file does not exist"
-    );
-
-    let manifest =
-        std::fs::read_to_string(manifest_path).wrap_err("failed to read manifest file")?;
-    let manifest = IconsManifest::parse(&manifest).wrap_err("failed to parse manifest")?;
-
-    let output_file_name = output_name.unwrap_or_else(|| manifest.icons.id.0.clone());
-
-    let output_plugin_file = output_path.join(format!("{output_file_name}.tilepadIcons"));
-
-    let file = File::create(output_plugin_file)?;
-
-    zip(&path, file)?;
-
-    Ok(())
-}
-
-fn zip<T>(input: &Path, writer: T) -> eyre::Result<()>
-where
-    T: Write + Seek,
-{
-    let walkdir = WalkDir::new(input);
-    let it = walkdir.into_iter();
-    let mut zip = zip::ZipWriter::new(writer);
-    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
-
-    let mut buffer = Vec::new();
-    for entry in it {
-        let entry = match entry {
-            Ok(value) => value,
-            Err(_) => continue,
-        };
-
-        let path = entry.path();
-        let relative_path = path.strip_prefix(input)?;
-
-        if path.is_file() {
-            zip.start_file_from_path(relative_path, options)?;
-            let mut f = File::open(path)?;
-
-            f.read_to_end(&mut buffer)?;
-            zip.write_all(&buffer)?;
-            buffer.clear();
-        } else if !relative_path.as_os_str().is_empty() {
-            zip.add_directory_from_path(relative_path, options)?;
-        }
-    }
-    zip.finish()?;
-    Ok(())
 }
