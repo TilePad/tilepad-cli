@@ -114,10 +114,10 @@ fn link() -> eyre::Result<()> {
 
     eyre::ensure!(plugin_path.is_dir(), ".tilepadPlugin is not a directory");
 
-    let manifest_path = plugin_path.join("manifest.toml");
+    let manifest_path = plugin_path.join("manifest.json");
     eyre::ensure!(
         manifest_path.exists(),
-        ".tilepadPlugin/manifest.toml manifest file does not exist"
+        ".tilepadPlugin/manifest.json manifest file does not exist"
     );
 
     let manifest =
@@ -163,10 +163,10 @@ fn unlink() -> eyre::Result<()> {
 
     eyre::ensure!(plugin_path.is_dir(), ".tilepadPlugin is not a directory");
 
-    let manifest_path = plugin_path.join("manifest.toml");
+    let manifest_path = plugin_path.join("manifest.json");
     eyre::ensure!(
         manifest_path.exists(),
-        ".tilepadPlugin/manifest.toml manifest file does not exist"
+        ".tilepadPlugin/manifest.json manifest file does not exist"
     );
 
     let manifest =
@@ -212,10 +212,10 @@ fn bundle(
 
     eyre::ensure!(plugin_path.is_dir(), ".tilepadPlugin is not a directory");
 
-    let manifest_path = plugin_path.join("manifest.toml");
+    let manifest_path = plugin_path.join("manifest.json");
     eyre::ensure!(
         manifest_path.exists(),
-        ".tilepadPlugin/manifest.toml manifest file does not exist"
+        ".tilepadPlugin/manifest.json manifest file does not exist"
     );
 
     let manifest =
@@ -244,10 +244,10 @@ fn bundle_icon_pack(
     eyre::ensure!(path.exists(), ".tilepadPlugin directory does not exist");
     eyre::ensure!(path.is_dir(), "target is not a directory");
 
-    let manifest_path = path.join("manifest.toml");
+    let manifest_path = path.join("manifest.json");
     eyre::ensure!(
         manifest_path.exists(),
-        "manifest.toml manifest file does not exist"
+        "manifest.json manifest file does not exist"
     );
 
     let manifest =
