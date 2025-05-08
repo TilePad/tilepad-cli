@@ -4,6 +4,7 @@ use std::path::PathBuf;
 mod bundle;
 mod bundle_icon_pack;
 mod link;
+mod reload;
 mod unlink;
 mod zip;
 
@@ -39,6 +40,10 @@ pub enum Commands {
 
     /// Remove the link from the current plugin
     Unlink,
+
+    /// Tell TilePad to reload the currently loaded plugins and load
+    /// any new plugins that were added
+    ReloadPlugins,
 
     /// Bundles the .tilepadPlugin directory into a .tilepadPlugin
     /// archive ready to be installed by Tilepad
@@ -95,6 +100,10 @@ fn main() -> eyre::Result<()> {
         }
         Commands::Link {} => link::link(),
         Commands::Unlink {} => unlink::unlink(),
-        _ => todo!("not implemented"),
+        Commands::ReloadPlugins => reload::try_reload_plugins(),
+
+        Commands::Create => todo!(),
+        Commands::Restart { plugin_id } => todo!(),
+        Commands::Stop { plugin_id } => todo!(),
     }
 }

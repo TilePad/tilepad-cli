@@ -4,6 +4,8 @@ use std::path::PathBuf;
 use symlink::remove_symlink_dir;
 use tilepad_manifest::plugin::Manifest as PluginManifest;
 
+use crate::reload::try_reload_plugins;
+
 pub fn unlink() -> eyre::Result<()> {
     let path = PathBuf::from(".");
     let plugin_path = path.join(".tilepadPlugin");
@@ -42,6 +44,8 @@ pub fn unlink() -> eyre::Result<()> {
     } else {
         println!("link not found")
     }
+
+    try_reload_plugins()?;
 
     Ok(())
 }

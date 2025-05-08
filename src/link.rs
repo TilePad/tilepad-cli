@@ -8,6 +8,8 @@ use eyre::{Context, OptionExt};
 use symlink::symlink_dir;
 use tilepad_manifest::plugin::Manifest as PluginManifest;
 
+use crate::reload::try_reload_plugins;
+
 pub fn link() -> eyre::Result<()> {
     let path = PathBuf::from(".");
     let plugin_path = path.join(".tilepadPlugin");
@@ -55,6 +57,8 @@ pub fn link() -> eyre::Result<()> {
     symlink_dir(plugin_path, plugin_out_path).wrap_err("failed to create link")?;
 
     println!("created link");
+
+    try_reload_plugins()?;
 
     Ok(())
 }
