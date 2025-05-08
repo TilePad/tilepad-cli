@@ -1,7 +1,7 @@
 use crate::zip::zip_directory;
 use eyre::Context;
 use std::{fs::File, path::PathBuf};
-use tilepad_manifest::icons::Manifest as IconsManifest;
+use tilepad_manifest::icons::IconsManifest;
 
 pub fn bundle_icon_pack(
     path: Option<PathBuf>,

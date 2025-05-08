@@ -1,7 +1,7 @@
 use crate::zip::zip_directory;
 use eyre::Context;
 use std::{fs::File, path::PathBuf};
-use tilepad_manifest::plugin::Manifest as PluginManifest;
+use tilepad_manifest::plugin::PluginManifest;
 
 pub fn bundle(
     path: Option<PathBuf>,

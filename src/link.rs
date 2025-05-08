@@ -6,7 +6,7 @@ use std::{
 use dirs::data_dir;
 use eyre::{Context, OptionExt};
 use symlink::symlink_dir;
-use tilepad_manifest::plugin::Manifest as PluginManifest;
+use tilepad_manifest::plugin::PluginManifest;
 
 use crate::reload::try_reload_plugins;
 
