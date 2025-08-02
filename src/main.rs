@@ -13,6 +13,10 @@ mod zip;
 struct Args {
     #[command(subcommand)]
     pub command: Option<Commands>,
+
+    /// Override the default server port when using a custom port within the tilepad desktop app
+    #[arg(short, long)]
+    pub port: Option<u16>,
 }
 
 #[derive(Subcommand)]
@@ -93,14 +97,16 @@ fn main() -> eyre::Result<()> {
         }
     };
 
+    let port = args.port.unwrap_or(8532);
+
     match command {
         Commands::Bundle { path, output, name } => bundle::bundle(path, output, name),
         Commands::BundleIconPack { path, output, name } => {
             bundle_icon_pack::bundle_icon_pack(path, output, name)
         }
-        Commands::Link {} => link::link(),
-        Commands::Unlink {} => unlink::unlink(),
-        Commands::ReloadPlugins => reload::try_reload_plugins(),
+        Commands::Link {} => link::link(port),
+        Commands::Unlink {} => unlink::unlink(port),
+        Commands::ReloadPlugins => reload::try_reload_plugins(port),
 
         Commands::Create => todo!(),
         Commands::Restart { plugin_id } => todo!(),

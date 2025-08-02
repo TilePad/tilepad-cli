@@ -10,7 +10,7 @@ use tilepad_manifest::plugin::PluginManifest;
 
 use crate::reload::try_reload_plugins;
 
-pub fn link() -> eyre::Result<()> {
+pub fn link(port: u16) -> eyre::Result<()> {
     let path = PathBuf::from(".");
     let plugin_path = path.join(".tilepadPlugin");
     let plugin_path = absolute(plugin_path).wrap_err("failed to make absolute path")?;
@@ -58,7 +58,7 @@ pub fn link() -> eyre::Result<()> {
 
     println!("created link");
 
-    try_reload_plugins()?;
+    try_reload_plugins(port)?;
 
     Ok(())
 }

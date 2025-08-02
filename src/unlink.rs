@@ -6,7 +6,7 @@ use tilepad_manifest::plugin::PluginManifest;
 
 use crate::reload::try_reload_plugins;
 
-pub fn unlink() -> eyre::Result<()> {
+pub fn unlink(port: u16) -> eyre::Result<()> {
     let path = PathBuf::from(".");
     let plugin_path = path.join(".tilepadPlugin");
     eyre::ensure!(
@@ -45,7 +45,7 @@ pub fn unlink() -> eyre::Result<()> {
         println!("link not found")
     }
 
-    try_reload_plugins()?;
+    try_reload_plugins(port)?;
 
     Ok(())
 }
