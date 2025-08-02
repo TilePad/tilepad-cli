@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use symlink::remove_symlink_dir;
 use tilepad_manifest::plugin::PluginManifest;
 
-use crate::reload::try_reload_plugins;
+use crate::server::try_reload_plugins;
 
 pub fn unlink(port: u16) -> eyre::Result<()> {
     let path = PathBuf::from(".");

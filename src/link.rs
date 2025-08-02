@@ -8,7 +8,7 @@ use eyre::{Context, OptionExt};
 use symlink::symlink_dir;
 use tilepad_manifest::plugin::PluginManifest;
 
-use crate::reload::try_reload_plugins;
+use crate::server::try_reload_plugins;
 
 pub fn link(port: u16) -> eyre::Result<()> {
     let path = PathBuf::from(".");

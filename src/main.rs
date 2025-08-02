@@ -1,10 +1,11 @@
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
+use tilepad_manifest::plugin::PluginId;
 
 mod bundle;
 mod bundle_icon_pack;
 mod link;
-mod reload;
+mod server;
 mod unlink;
 mod zip;
 
@@ -27,20 +28,20 @@ pub enum Commands {
     /// Restart a specific plugin
     Restart {
         /// ID of the plugin to restart
-        plugin_id: String,
+        plugin_id: PluginId,
     },
 
     /// Stop a specific plugin
     Stop {
         /// ID of the plugin to stop
-        plugin_id: String,
+        plugin_id: PluginId,
     },
 
     /// Link the current plugin to tilepad
     ///
     /// Creates a symlink so that changes in the .tilepadPlugin folder
     /// will be accessible in the app
-    Link {},
+    Link,
 
     /// Remove the link from the current plugin
     Unlink,
@@ -104,12 +105,12 @@ fn main() -> eyre::Result<()> {
         Commands::BundleIconPack { path, output, name } => {
             bundle_icon_pack::bundle_icon_pack(path, output, name)
         }
-        Commands::Link {} => link::link(port),
-        Commands::Unlink {} => unlink::unlink(port),
-        Commands::ReloadPlugins => reload::try_reload_plugins(port),
+        Commands::Link => link::link(port),
+        Commands::Unlink => unlink::unlink(port),
+        Commands::ReloadPlugins => server::try_reload_plugins(port),
 
         Commands::Create => todo!(),
-        Commands::Restart { plugin_id } => todo!(),
-        Commands::Stop { plugin_id } => todo!(),
+        Commands::Restart { plugin_id } => server::restart_plugin(port, plugin_id),
+        Commands::Stop { plugin_id } => server::stop_plugin(port, plugin_id),
     }
 }
