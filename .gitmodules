@@ -1,0 +1,9 @@
+[submodule "templates/template-rust"]
+	path = templates/template-rust
+	url = https://github.com/TilePad/tilepad-example-rs.git
+[submodule "templates/template-typescript"]
+	path = templates/template-typescript
+	url = https://github.com/TilePad/tilepad-example-ts.git
+[submodule "templates/template-javascript"]
+	path = templates/template-javascript
+	url = https://github.com/TilePad/tilepad-example-js.git

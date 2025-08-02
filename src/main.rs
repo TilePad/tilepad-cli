@@ -4,6 +4,7 @@ use tilepad_manifest::plugin::PluginId;
 
 mod bundle;
 mod bundle_icon_pack;
+mod create;
 mod link;
 mod server;
 mod unlink;
