@@ -24,7 +24,11 @@ struct Args {
 #[derive(Subcommand)]
 pub enum Commands {
     /// Scaffold out a new tilepad plugin
-    Create,
+    Create {
+        /// Optional path to create the new project within
+        #[arg(short, long)]
+        path: Option<PathBuf>,
+    },
 
     /// Restart a specific plugin
     Restart {
@@ -110,7 +114,7 @@ fn main() -> eyre::Result<()> {
         Commands::Unlink => unlink::unlink(port),
         Commands::ReloadPlugins => server::try_reload_plugins(port),
 
-        Commands::Create => todo!(),
+        Commands::Create { path } => create::create(path),
         Commands::Restart { plugin_id } => server::restart_plugin(port, plugin_id),
         Commands::Stop { plugin_id } => server::stop_plugin(port, plugin_id),
     }
