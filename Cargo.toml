@@ -12,6 +12,7 @@ repository = "https://github.com/tilepad/tilepad-cli"
 # Command line arguments
 clap = { version = "4", features = ["derive"] }
 
+# Command line prompting
 dialoguer = { version = "0.11.0", features = ["fuzzy-select"] }
 
 # Error reporting
@@ -29,6 +30,8 @@ dirs = "6.0.0"
 
 # Manifest definitions
 tilepad-manifest = { version = "0.7.0" }
+
+# Cross platform working with symlinks
 symlink = "0.1.0"
 
 # HTTP client for making requests to the TilePad server
@@ -39,8 +42,9 @@ reqwest = { version = "0.12", default-features = false, features = [
 
 # Serde for deserializing JSON
 serde = { version = "1", features = ["derive"] }
+
+# Git access to clone git repositories
 git2 = "0.20.2"
-indoc = "2.0.6"
 
 [[bin]]
 name = "tilepad"

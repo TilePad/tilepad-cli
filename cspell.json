@@ -1,0 +1,4 @@
+{
+  "ignoreWords": ["Jacobtread"],
+  "words": ["dialoguer", "reqwest", "serde", "walkdir"]
+}
