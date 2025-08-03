@@ -28,6 +28,10 @@ pub enum Commands {
         /// Optional path to create the new project within
         #[arg(short, long)]
         path: Option<PathBuf>,
+
+        /// Optional template ID
+        #[arg(short, long)]
+        template: Option<String>,
     },
 
     /// Restart a specific plugin
@@ -114,7 +118,7 @@ fn main() -> eyre::Result<()> {
         Commands::Unlink => unlink::unlink(port),
         Commands::ReloadPlugins => server::try_reload_plugins(port),
 
-        Commands::Create { path } => create::create(path),
+        Commands::Create { path, template } => create::create(path, template),
         Commands::Restart { plugin_id } => server::restart_plugin(port, plugin_id),
         Commands::Stop { plugin_id } => server::stop_plugin(port, plugin_id),
     }

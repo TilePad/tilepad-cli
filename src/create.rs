@@ -1,62 +1,97 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use dialoguer::{FuzzySelect, Input, theme::ColorfulTheme};
-use eyre::ContextCompat;
+use eyre::{Context, ContextCompat};
 use git2::Repository;
 
 struct Template {
+    id: &'static str,
     name: &'static str,
     repository: &'static str,
 }
 
 static TEMPLATES: &[Template] = &[
     Template {
-        name: "Javascript (example-js)",
+        id: "example-js",
+        name: "Javascript",
         repository: "https://github.com/TilePad/tilepad-example-js.git",
     },
     Template {
-        name: "Typescript (example-ts)",
+        id: "example-ts",
+        name: "Typescript",
         repository: "https://github.com/TilePad/tilepad-example-ts.git",
     },
     Template {
-        name: "Rust (example-rs)",
+        id: "example-rs",
+        name: "Rust",
         repository: "https://github.com/TilePad/tilepad-example-rs.git",
     },
 ];
 
-pub fn create(project_path: Option<PathBuf>) -> eyre::Result<()> {
+pub fn create(project_path: Option<PathBuf>, template_id: Option<String>) -> eyre::Result<()> {
+    // Get current directory
+    let current_dir = std::env::current_dir().context("failed to get current directory")?;
+
     let theme = ColorfulTheme::default();
-
-    let items = TEMPLATES
-        .iter()
-        .map(|item| item.name.to_string())
-        .collect::<Vec<_>>();
-
-    let selection = FuzzySelect::with_theme(&theme)
-        .with_prompt("Choose a project template")
-        .items(&items)
-        .interact()?;
-
-    let item = TEMPLATES
-        .get(selection)
-        .context("selected item index out of bounds")?;
 
     let target_path = match project_path {
         Some(value) => value,
         None => {
             let project_name = Input::with_theme(&theme)
-                .with_prompt("Choose a project name (Directory Name)")
+                .with_prompt("Project name:")
                 .default("tilepad-plugin".to_string())
                 .show_default(true)
                 .interact_text()?;
 
-            Path::new(".").join(project_name)
+            current_dir.join(project_name)
         }
     };
 
-    Repository::clone(item.repository, &target_path)?;
+    let template = match template_id {
+        Some(template_id) => TEMPLATES
+            .iter()
+            .find(|template| template.id == template_id)
+            .with_context(|| format!("template \"{template_id}\" not found"))?,
+        None => {
+            let items = TEMPLATES
+                .iter()
+                .map(|item| format!("{} ({})", item.name, item.id))
+                .collect::<Vec<_>>();
 
-    println!("Installation complete");
+            let selection = FuzzySelect::with_theme(&theme)
+                .with_prompt("Select a project template")
+                .items(&items)
+                .default(2)
+                .interact()?;
+
+            TEMPLATES
+                .get(selection)
+                .context("selected item index out of bounds")?
+        }
+    };
+
+    Repository::clone(template.repository, &target_path)?;
+
+    if ["example-js", "example-ts"].contains(&template.id) {
+        println!("\nProject created. Now run:\n");
+
+        if target_path
+            .parent()
+            .is_some_and(|parent| parent.eq(&current_dir))
+        {
+            if let Some(filename) = target_path.file_name() {
+                println!("  cd {}", filename.display());
+            } else {
+                println!("  cd {}", target_path.display());
+            }
+        } else {
+            println!("  cd {}", target_path.display());
+        }
+
+        println!("  npm install");
+    } else {
+        println!("\nProject created.");
+    }
 
     Ok(())
 }
