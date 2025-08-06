@@ -70,7 +70,14 @@ pub fn create(project_path: Option<PathBuf>, template_id: Option<String>) -> eyr
         }
     };
 
-    Repository::clone(template.repository, &target_path)?;
+    let repo = Repository::clone(template.repository, &target_path)?;
+    let git_dir = repo.path().to_path_buf();
+    drop(repo);
+
+    // Remove the git directory
+    if git_dir.exists() {
+        std::fs::remove_dir_all(git_dir)?;
+    }
 
     if ["example-js", "example-ts"].contains(&template.id) {
         println!("\nProject created. Now run:\n");
