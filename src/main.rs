@@ -79,7 +79,7 @@ pub enum Commands {
     },
 
     BundleIconPack {
-        /// Optional path to the directory containing the iconpack manifest
+        /// Optional path to the directory containing the icon pack manifest
         #[arg(short, long)]
         path: Option<PathBuf>,
 

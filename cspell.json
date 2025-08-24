@@ -1,4 +1,13 @@
 {
-  "ignoreWords": ["Jacobtread"],
-  "words": ["dialoguer", "reqwest", "serde", "walkdir"]
+  "ignoreWords": [
+    "Jacobtread"
+  ],
+  "words": [
+    "dialoguer",
+    "reqwest",
+    "serde",
+    "walkdir",
+    "tilepad",
+    "libgit"
+  ]
 }
