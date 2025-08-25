@@ -60,7 +60,7 @@ pub enum Commands {
     ReloadPlugins,
 
     /// Bundles the .tilepadPlugin directory into a .tilepadPlugin
-    /// archive ready to be installed by Tilepad
+    /// archive ready to be installed by TilePad
     Bundle {
         /// Optional path to the directory containing the .tilepadPlugin directory
         /// if not specified the current directory will be used
@@ -78,6 +78,7 @@ pub enum Commands {
         output: Option<PathBuf>,
     },
 
+    /// Bundles an icon pack into a .tilepadIcons bundle for use with TilePad
     BundleIconPack {
         /// Optional path to the directory containing the icon pack manifest
         #[arg(short, long)]
