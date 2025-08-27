@@ -32,9 +32,27 @@ Options:
   -V, --version      Print version
 ```
 
+## Installation
 
+### Install prebuilt binaries via shell script
 
-# Useful commands
+```sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/tilepad/tilepad-cli/releases/latest/download/tilepad-cli-installer.sh | sh
+```
+
+### Install prebuilt binaries via powershell script
+
+```sh
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/tilepad/tilepad-cli/releases/latest/download/tilepad-cli-installer.ps1 | iex"
+```
+
+### Install prebuilt binaries into your npm project
+
+```sh
+npm install @tilepad/cli
+```
+
+## Useful commands
 
 Pulling down the git submodules for the various project templates:
 
